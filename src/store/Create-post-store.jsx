@@ -1,6 +1,14 @@
-import { createContext, useReducer } from "react";
+import { createContext, useEffect, useReducer, useState } from "react";
+import Loader from "../components/Loader";
 
-export const PostListContext = createContext({ PostList: [], addPost: () => { }, deletePost: () => { } });
+export const PostListContext = createContext(
+  {
+    PostList: [],
+    addPost: () => { },
+    deletePost: () => { },
+    fetching: false
+  }
+);
 
 
 const PostListReducer = (currentPostList, action) => {
@@ -8,31 +16,51 @@ const PostListReducer = (currentPostList, action) => {
 
   if (action.type === 'ADD_POST') {
     newPostList = [action.payload.postObj, ...currentPostList];
+  } else if (action.type === 'ADD_INITIAL_POSTS') {
+    newPostList = action.payload.postObj;
   } else if (action.type === 'DELETE_POST') {
-
     newPostList = currentPostList.filter(item => item.id !== action.payload.id)
-
   }
   return newPostList;
 }
 
 const PostListContextProvider = ({ children }) => {
   const [PostList, dispatchPostList] = useReducer(PostListReducer, []);
+  const [fetching, setFetching] = useState(false);
 
-  const addPost = (id, postTitle, postContent, postLikes, postTags) => {
-    const postObj = {
-      id: id,
-      postTitle: postTitle,
-      postContent: postContent,
-      postLikes: postLikes,
-      postTags: postTags.split(' ')
+  useEffect(() => {
+    setFetching(true);
+
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    fetch('https://dummyjson.com/posts', { signal })
+      .then(res => res.json())
+      .then(resObj => {
+        addInitialPosts(resObj.posts);
+        setFetching(false);
+      });
+
+
+    return () => {
+      controller.abort();
     }
-    // console.log(postObj);
+
+  }, [dispatchPostList]);
+
+  const addPost = (post) => {
     dispatchPostList({
       type: 'ADD_POST',
       payload: {
-        postObj
+        postObj: post
       }
+    })
+  }
+
+  const addInitialPosts = (post) => {
+    dispatchPostList({
+      type: 'ADD_INITIAL_POSTS',
+      payload: { postObj: post }
     })
   }
 
@@ -46,7 +74,15 @@ const PostListContextProvider = ({ children }) => {
   }
 
   return (
-    <PostListContext.Provider value={{ PostList: PostList, addPost: addPost, deletePost: deletePost }}>
+    <PostListContext.Provider value={
+      {
+        PostList: PostList,
+        addPost: addPost,
+        deletePost: deletePost,
+        fetching: fetching
+      }
+    }
+    >
       {children}
     </PostListContext.Provider>
   )

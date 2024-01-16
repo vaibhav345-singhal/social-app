@@ -6,6 +6,7 @@ import Header from './components/Header';
 import Posts from './components/Posts';
 import Sidebar from './components/Sidebar';
 import PostListContextProvider from './store/Create-post-store';
+import Loader from './components/Loader';
 
 
 const App = () => {

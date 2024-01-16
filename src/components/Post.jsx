@@ -10,11 +10,11 @@ const Post = ({ item }) => {
         <RiChatDeleteFill style={{ cursor: 'pointer' }} onClick={() => { deletePost(item.id) }} />
       </span>
       <div className="card-body">
-        <h5 className="card-title">{item.postTitle}</h5>
-        <p className="card-text">{item.postContent}</p>
-        {item.postTags.map((tags => <span key={tags} className="badge text-bg-primary" style={{margin:'2px'}}>{tags}</span>))}
-        <div className="alert alert-info" role="alert" style={{margin:'15px 0 0 0'}}>
-          This Post Got {item.postLikes} Likes.
+        <h5 className="card-title">{item.title}</h5>
+        <p className="card-text">{item.body}</p>
+        {item.tags.map((tags => <span key={tags} className="badge text-bg-primary" style={{ margin: '2px' }}>{tags}</span>))}
+        <div className="alert alert-info" role="alert" style={{ margin: '15px 0 0 0' }}>
+          This Post Got {item.reactions} Likes.
         </div>
       </div>
     </div>
